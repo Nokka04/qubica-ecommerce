@@ -1,17 +1,32 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { fetchProductById } from '@/api/products'
 import { useAsyncData } from '@/composables/useAsyncData'
 import type { Product } from '@/types'
 import { formatPrice } from '@/utils/format'
+import { useCartStore } from '@/stores/cart'
+import { useWishlistStore } from '@/stores/wishlist'
 import BaseSpinner from '@/components/BaseSpinner.vue'
 import ErrorModal from '@/components/ErrorModal.vue'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
+const cart = useCartStore()
+const wishlist = useWishlistStore()
 
 const { data: product, loading, error, run } = useAsyncData<Product>()
+
+// Brief confirmation shown after adding to cart.
+const added = ref(false)
+let addedTimer: ReturnType<typeof setTimeout> | undefined
+
+function addToCart(item: Product): void {
+  cart.addItem(item)
+  added.value = true
+  clearTimeout(addedTimer)
+  addedTimer = setTimeout(() => (added.value = false), 1800)
+}
 
 function load(): void {
   run(() => fetchProductById(Number(props.id)))
@@ -50,6 +65,20 @@ watch(() => props.id, load, { immediate: true })
           </span>
         </div>
         <p class="product__description">{{ product.description }}</p>
+
+        <div class="product__actions">
+          <button type="button" class="btn btn--primary" @click="addToCart(product)">
+            {{ added ? 'Added ✓' : 'Add to cart' }}
+          </button>
+          <button
+            type="button"
+            class="btn btn--ghost"
+            :aria-pressed="wishlist.has(product.id)"
+            @click="wishlist.toggle(product)"
+          >
+            {{ wishlist.has(product.id) ? '♥ In wishlist' : '♡ Add to wishlist' }}
+          </button>
+        </div>
       </div>
     </article>
 
@@ -139,6 +168,13 @@ watch(() => props.id, load, { immediate: true })
   &__description {
     color: var(--color-text-muted);
     line-height: 1.7;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
   }
 }
 </style>
