@@ -1,54 +1,118 @@
-# qubica-ecommerce
+# QubicaStore — Vue 3 + TypeScript E-commerce
 
-This template should help get you started developing with Vue 3 in Vite.
+A responsive e-commerce single-page application built with **Vue 3**, **TypeScript** and **Vite**, consuming the [Fake Store API](https://fakestoreapi.com/docs). It lets users browse products, filter by category, view product details, manage a shopping cart and wishlist, and authenticate against the backend API.
 
-## Recommended IDE Setup
+This project was built as the technical exercise for the **Junior Web Engineer** role at QubicaAmf.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+---
 
-## Recommended Browser Setup
+## Features
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+### Core requirements
 
-## Type Support for `.vue` Imports in TS
+- **Global layout** — sticky `Header` + `Main` content area + footer, using semantic HTML5.
+- **Responsive & accessible** — mobile-first design (tablet & smartphone friendly), keyboard navigation, visible focus states, `alt` text on every product image, a "skip to content" link, and `aria` attributes.
+- **Header** — store name, textual logo, and a category navigation fetched **dynamically** from the API.
+- **Home** — responsive grid of product cards (image, name, price, rating). Cards are clickable and lead to the detail view.
+- **Category filtering via URL** — clicking a category updates the URL query string (`/?category=electronics`). The filter is **deep-link & refresh safe**: loading a filtered URL directly initializes the interface with the correct filter applied.
+- **Product detail** — name, image, price, full description and rating.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+### Bonus features implemented
 
-## Customize configuration
+- **Git workflow** — feature branches merged into `main` via non-fast-forward "PR" merges, keeping a clean, linear-per-feature history.
+- **Vue 3 + strict TypeScript** — API responses and domain models are fully typed (`src/types`).
+- **Design system with SCSS** — CSS Custom Properties for colors, spacing, typography and radii, centralized in `src/styles/_tokens.scss`.
+- **Unit tests** — Vitest tests for the price/label formatting utilities and the cart store logic.
+- **State management** — Pinia stores for cart, wishlist, auth and theme.
+- **Polish** — route transitions, skeleton loaders and spinners for loading states, and an error modal ("something went wrong") with retry for network failures.
+- **Light / dark theme** — toggle in the header, persisted to `localStorage` and respecting the OS preference on first visit.
+- **Add to cart** — from the product detail page, with a live counter badge in the header.
+- **Wishlist** — protected feature with its own view and header counter.
+- **Login / logout** — via the Fake Store API `POST /auth/login`, with `requiresAuth` route guards protecting the Cart and Wishlist views.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+---
 
-## Project Setup
+## Tech stack
 
-```sh
+| Concern           | Choice                          |
+| ----------------- | ------------------------------- |
+| Framework         | Vue 3 (Composition API)         |
+| Language          | TypeScript (strict)             |
+| Build tool        | Vite                            |
+| Routing           | Vue Router                      |
+| State management  | Pinia                           |
+| Styling           | SCSS + CSS Custom Properties    |
+| HTTP client       | Axios                           |
+| Testing           | Vitest + @vue/test-utils        |
+| Linting           | ESLint + oxlint                 |
+
+---
+
+## Prerequisites
+
+- **Node.js** `>= 20.19` (or `>= 22.12`)
+- **npm** `>= 10`
+
+> The project was developed and tested on Node `20.19.6`.
+
+## Local setup
+
+```bash
+# 1. Clone the repository
+git clone <your-repo-url>
+cd qubica-ecommerce
+
+# 2. Install dependencies
 npm install
-```
 
-### Compile and Hot-Reload for Development
-
-```sh
+# 3. Start the dev server (http://localhost:5173)
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## Available scripts
 
-```sh
-npm run build
+```bash
+npm run dev         # Start the Vite dev server with HMR
+npm run build       # Type-check and build for production (output in dist/)
+npm run preview     # Preview the production build locally
+npm run test:unit   # Run unit tests (Vitest)
+npm run lint        # Lint & auto-fix with oxlint + ESLint
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+### Demo credentials
 
-```sh
-npm run test:unit
+The login form is pre-filled with a valid Fake Store API account:
+
+- **Username:** `mor_2314`
+- **Password:** `83r5^_`
+
+---
+
+## Project structure
+
+```
+src/
+├── api/            # Axios instance & typed API services (products, categories, auth)
+├── components/     # Reusable UI components (AppHeader, ProductCard, ErrorModal…)
+├── composables/    # Reusable logic (useAsyncData for loading/error handling)
+├── router/         # Route definitions + auth guard
+├── stores/         # Pinia stores (cart, wishlist, auth, theme)
+├── styles/         # SCSS design system (tokens, mixins, global styles)
+├── types/          # Shared TypeScript interfaces
+├── utils/          # Pure helpers (formatting) + unit tests
+└── views/          # Route-level views (Home, Product, Login, Cart, Wishlist…)
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+---
 
-```sh
-npm run lint
-```
+## Git workflow
+
+Each feature was developed on a dedicated branch and merged into `main` through a
+non-fast-forward merge, simulating a Pull Request based workflow:
+
+- `feat/foundation-layout` — design system, typed API layer, global layout & routing
+- `feat/catalog` — home grid, category filtering & product detail
+- `feat/cart-auth` — cart, wishlist & authentication
+- `feat/tests-docs` — unit tests & documentation
+
+Run `git log --oneline --graph` to see the branching history.
