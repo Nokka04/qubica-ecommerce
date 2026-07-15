@@ -37,3 +37,6 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# Reference exercise package (brief PDF + original Next.js source, not part of this app)
+CGMWTAPR2025/
