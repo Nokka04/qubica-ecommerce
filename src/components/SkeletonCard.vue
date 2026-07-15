@@ -5,39 +5,38 @@
 <template>
   <div class="skeleton" aria-hidden="true">
     <div class="skeleton__image" />
-    <div class="skeleton__line skeleton__line--title" />
-    <div class="skeleton__line skeleton__line--short" />
-    <div class="skeleton__line skeleton__line--price" />
+    <div class="skeleton__row">
+      <div class="skeleton__line skeleton__line--title" />
+      <div class="skeleton__line skeleton__line--price" />
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .skeleton {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-
   &__image {
-    aspect-ratio: 1 / 1;
-    border-radius: var(--radius-md);
-    margin-bottom: var(--space-4);
+    aspect-ratio: 5 / 7;
+    margin-bottom: 0.5em;
+
+    @media (max-width: 767px) {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
   }
 
   &__line {
-    height: 0.75rem;
-    border-radius: var(--radius-sm);
-    margin-bottom: var(--space-3);
+    height: 0.7rem;
 
     &--title {
-      width: 90%;
-    }
-    &--short {
       width: 60%;
     }
     &--price {
-      width: 35%;
-      margin-bottom: 0;
+      width: 20%;
     }
   }
 
@@ -45,9 +44,9 @@
   &__line {
     background: linear-gradient(
       90deg,
-      var(--color-surface-alt) 25%,
-      var(--color-border) 37%,
-      var(--color-surface-alt) 63%
+      #f2f2f2 25%,
+      #e0e0e0 37%,
+      #f2f2f2 63%
     );
     background-size: 400% 100%;
     animation: shimmer 1.4s ease infinite;

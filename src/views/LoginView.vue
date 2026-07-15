@@ -8,7 +8,6 @@ const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 
-// Fake Store API demo account, pre-filled to make the flow easy to test.
 const username = ref('mor_2314')
 const password = ref('83r5^_')
 const loading = ref(false)
@@ -33,20 +32,12 @@ async function onSubmit(): Promise<void> {
   <section class="login">
     <div class="login__card">
       <h1 class="login__title">Sign in</h1>
-      <p class="login__hint">
-        Use the demo account (pre-filled): <code>mor_2314</code> / <code>83r5^_</code>
-      </p>
+      <p class="login__hint">Demo account (pre-filled): mor_2314 / 83r5^_</p>
 
       <form class="login__form" @submit.prevent="onSubmit">
         <div class="login__field">
           <label for="username">Username</label>
-          <input
-            id="username"
-            v-model="username"
-            type="text"
-            autocomplete="username"
-            required
-          />
+          <input id="username" v-model="username" type="text" autocomplete="username" required />
         </div>
 
         <div class="login__field">
@@ -72,35 +63,31 @@ async function onSubmit(): Promise<void> {
 
 <style scoped lang="scss">
 .login {
+  min-height: 100svh;
   display: grid;
   place-items: center;
-  padding-block: var(--space-6);
+  padding: 8rem var(--pad) var(--space-6);
+  background-color: var(--color-bg);
 
   &__card {
     width: 100%;
-    max-width: 400px;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
+    max-width: 420px;
+    border: 1px solid var(--color-fg);
     padding: var(--space-6);
   }
 
   &__title {
-    font-size: var(--font-size-2xl);
-    margin-bottom: var(--space-2);
+    font-size: var(--font-size-3xl);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--space-3);
   }
 
   &__hint {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-5);
-
-    code {
-      background-color: var(--color-surface-alt);
-      padding: 0 var(--space-1);
-      border-radius: var(--radius-sm);
-    }
+    text-transform: uppercase;
+    font-size: var(--font-size-label);
+    letter-spacing: var(--letter-label);
+    color: var(--color-muted);
+    margin-bottom: var(--space-6);
   }
 
   &__form {
@@ -115,27 +102,34 @@ async function onSubmit(): Promise<void> {
     gap: var(--space-2);
 
     label {
-      font-size: var(--font-size-sm);
+      text-transform: uppercase;
+      font-size: var(--font-size-label);
       font-weight: 600;
+      letter-spacing: var(--letter-label);
     }
 
     input {
       padding: var(--space-3);
       font-size: var(--font-size-base);
-      color: var(--color-text);
+      color: var(--color-fg);
       background-color: var(--color-bg);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
+      border: 1px solid var(--color-line);
+      border-radius: 0;
 
       &:focus-visible {
-        border-color: var(--color-primary);
+        border-color: var(--color-fg);
+        outline: none;
       }
     }
   }
 
   &__error {
-    color: var(--color-danger);
-    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    font-size: var(--font-size-label);
+    letter-spacing: var(--letter-label);
+    color: var(--color-fg);
+    border-left: 2px solid var(--color-fg);
+    padding-left: var(--space-2);
   }
 
   &__submit {
