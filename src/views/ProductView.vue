@@ -1,10 +1,10 @@
 <script setup lang="ts">
-// Full catalog implementation is added in the catalog feature branch.
+defineProps<{ id: string }>()
 </script>
 
 <template>
   <section>
-    <h1>Products</h1>
+    <h1>Product {{ id }}</h1>
     <p>Coming soon…</p>
   </section>
 </template>
