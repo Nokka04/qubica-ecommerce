@@ -1,10 +1,10 @@
 <script setup lang="ts">
-// Full catalog implementation is added in the catalog feature branch.
+// Shopping cart implementation is added in the cart & auth feature branch.
 </script>
 
 <template>
   <section>
-    <h1>Products</h1>
+    <h1>Cart</h1>
     <p>Coming soon…</p>
   </section>
 </template>
