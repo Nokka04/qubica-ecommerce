@@ -7,228 +7,381 @@ import type { Category } from '@/types'
 import { useCartStore } from '@/stores/cart'
 import { useWishlistStore } from '@/stores/wishlist'
 import { useAuthStore } from '@/stores/auth'
-import ThemeToggle from './ThemeToggle.vue'
+import { gsap } from '@/composables/gsap'
 
 const categories = ref<Category[]>([])
-const loading = ref(true)
 
 const cart = useCartStore()
 const wishlist = useWishlistStore()
 const auth = useAuthStore()
 const router = useRouter()
 
-function onLogout(): void {
-  auth.logout()
-  router.push('/')
-}
+const navRef = ref<HTMLElement | null>(null)
+const menuOverlayRef = ref<HTMLElement | null>(null)
+const navLogoRef = ref<HTMLElement | null>(null)
+const menuBtnRef = ref<HTMLElement | null>(null)
+const cartBtnRef = ref<HTMLElement | null>(null)
+const overlayLogoRef = ref<HTMLElement | null>(null)
+const closeBtnRef = ref<HTMLElement | null>(null)
+
+let isAnimating = false
 
 onMounted(async () => {
+  const overlay = menuOverlayRef.value
+  if (overlay) {
+    gsap.set(overlay, {
+      clipPath: 'polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)',
+      pointerEvents: 'none',
+    })
+    gsap.set([overlayLogoRef.value, closeBtnRef.value], { y: '100%' })
+    gsap.set(overlay.querySelectorAll('.menu-overlay-items .reveal-line'), { y: '100%' })
+    gsap.set(overlay.querySelectorAll('.menu-footer .reveal-line'), { y: '100%' })
+  }
+
   try {
     categories.value = await fetchCategories()
   } catch {
-    // A failed category fetch should not crash the header; nav simply stays minimal.
     categories.value = []
-  } finally {
-    loading.value = false
   }
 })
+
+function openMenu(): void {
+  const overlay = menuOverlayRef.value
+  if (isAnimating || !overlay) return
+  isAnimating = true
+
+  const tl = gsap.timeline({ onComplete: () => (isAnimating = false) })
+
+  tl.to([navLogoRef.value, menuBtnRef.value, cartBtnRef.value], {
+    y: '-100%',
+    duration: 0.5,
+    stagger: 0.1,
+    ease: 'power3.out',
+    onComplete: () => {
+      if (navRef.value) navRef.value.style.pointerEvents = 'none'
+      gsap.set([navLogoRef.value, menuBtnRef.value, cartBtnRef.value], { y: '100%' })
+    },
+  })
+
+  tl.to(
+    overlay,
+    {
+      clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
+      duration: 1,
+      ease: 'hop',
+      onStart: () => (overlay.style.pointerEvents = 'all'),
+    },
+    '-=0.55',
+  )
+
+  tl.to(
+    [overlayLogoRef.value, closeBtnRef.value],
+    { y: '0%', duration: 1, stagger: 0.1, ease: 'power3.out' },
+    '-=0.5',
+  )
+
+  tl.to(
+    overlay.querySelectorAll('.menu-overlay-items .reveal-line'),
+    { y: '0%', duration: 1, stagger: 0.075, ease: 'power3.out' },
+    '<',
+  )
+
+  tl.to(
+    overlay.querySelectorAll('.menu-footer .reveal-line'),
+    { y: '0%', duration: 1, stagger: 0.1, ease: 'power3.out' },
+    '<',
+  )
+}
+
+function closeMenu(): void {
+  const overlay = menuOverlayRef.value
+  if (isAnimating || !overlay) return
+  isAnimating = true
+
+  const tl = gsap.timeline({ onComplete: () => (isAnimating = false) })
+
+  tl.to([overlayLogoRef.value, closeBtnRef.value], {
+    y: '-100%',
+    duration: 0.5,
+    stagger: 0.1,
+    ease: 'power3.out',
+  })
+
+  tl.to(
+    overlay.querySelectorAll('.menu-overlay-items .reveal-line'),
+    { y: '-100%', duration: 0.5, stagger: 0.05, ease: 'power3.in' },
+    '<',
+  )
+
+  tl.to(
+    overlay.querySelectorAll('.menu-footer .reveal-line'),
+    { y: '-100%', duration: 0.5, stagger: 0.05, ease: 'power3.in' },
+    '<',
+  )
+
+  tl.to(
+    overlay,
+    {
+      clipPath: 'polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)',
+      duration: 1,
+      ease: 'hop',
+      onComplete: () => {
+        overlay.style.pointerEvents = 'none'
+        gsap.set(overlay, {
+          clipPath: 'polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%)',
+        })
+        gsap.set([overlayLogoRef.value, closeBtnRef.value], { y: '100%' })
+        gsap.set(overlay.querySelectorAll('.menu-overlay-items .reveal-line'), { y: '100%' })
+        gsap.set(overlay.querySelectorAll('.menu-footer .reveal-line'), { y: '100%' })
+      },
+    },
+    '+=0.25',
+  )
+
+  tl.to(
+    [navLogoRef.value, menuBtnRef.value, cartBtnRef.value],
+    {
+      y: '0%',
+      duration: 0.5,
+      stagger: 0.1,
+      ease: 'power3.out',
+      onStart: () => {
+        if (navRef.value) navRef.value.style.pointerEvents = 'all'
+      },
+    },
+    '-=0.35',
+  )
+}
+
+/** Close the overlay, then navigate (mirrors the FA delayed navigation). */
+function navigateTo(to: string): void {
+  if (router.currentRoute.value.fullPath === to) {
+    closeMenu()
+    return
+  }
+  closeMenu()
+  window.setTimeout(() => router.push(to), 600)
+}
+
+function onLogout(): void {
+  auth.logout()
+  navigateTo('/')
+}
 </script>
 
 <template>
-  <header class="header">
-    <div class="container header__inner">
-      <RouterLink to="/" class="header__brand" aria-label="QubicaStore home">
-        <span class="header__logo" aria-hidden="true">Q</span>
-        <span class="header__name">QubicaStore</span>
-      </RouterLink>
-
-      <nav class="header__nav" aria-label="Product categories">
-        <ul class="header__nav-list">
-          <li>
-            <RouterLink
-              to="/"
-              class="header__nav-link"
-              :class="{ 'is-active': !$route.query.category }"
-            >
-              All
-            </RouterLink>
-          </li>
-          <li v-for="category in categories" :key="category">
-            <RouterLink
-              :to="{ path: '/', query: { category } }"
-              class="header__nav-link"
-              :class="{ 'is-active': $route.query.category === category }"
-            >
-              {{ formatCategoryLabel(category) }}
-            </RouterLink>
-          </li>
-        </ul>
-      </nav>
-
-      <div class="header__actions">
-        <RouterLink
-          to="/wishlist"
-          class="header__icon-btn"
-          :aria-label="`Wishlist, ${wishlist.count} items`"
-        >
-          <span aria-hidden="true">♥</span>
-          <span v-if="wishlist.count" class="header__badge">{{ wishlist.count }}</span>
-        </RouterLink>
-
-        <RouterLink
-          to="/cart"
-          class="header__icon-btn"
-          :aria-label="`Cart, ${cart.count} items`"
-        >
-          <span aria-hidden="true">🛒</span>
-          <span v-if="cart.count" class="header__badge">{{ cart.count }}</span>
-        </RouterLink>
-
-        <ThemeToggle />
-
-        <template v-if="auth.isAuthenticated">
-          <span class="header__user">Hi, {{ auth.username }}</span>
-          <button type="button" class="btn btn--ghost header__auth-btn" @click="onLogout">
-            Logout
-          </button>
-        </template>
-        <RouterLink v-else to="/login" class="btn btn--primary header__auth-btn">
-          Login
+  <div class="menu">
+    <div ref="navRef" class="nav">
+      <div class="nav-logo">
+        <div class="revealer">
+          <a ref="navLogoRef" href="/" class="reveal-line brand" @click.prevent="router.push('/')">
+            QubicaStore
+          </a>
+        </div>
+      </div>
+      <div class="nav-items">
+        <div class="nav-toggle" @click="openMenu">
+          <div class="revealer">
+            <p ref="menuBtnRef" class="reveal-line">Menu</p>
+          </div>
+        </div>
+        <RouterLink to="/cart" class="nav-cart">
+          <div class="revealer">
+            <p ref="cartBtnRef" class="reveal-line">Cart ({{ cart.count }})</p>
+          </div>
         </RouterLink>
       </div>
     </div>
-  </header>
+
+    <div ref="menuOverlayRef" class="menu-overlay">
+      <div class="menu-overlay-nav">
+        <div class="menu-overlay-nav-logo">
+          <div class="revealer">
+            <a ref="overlayLogoRef" href="/" class="reveal-line brand" @click.prevent="navigateTo('/')">
+              QubicaStore
+            </a>
+          </div>
+        </div>
+        <div class="menu-overlay-nav-close" @click="closeMenu">
+          <div class="revealer">
+            <p ref="closeBtnRef" class="reveal-line">Close</p>
+          </div>
+        </div>
+      </div>
+
+      <nav class="menu-overlay-items" aria-label="Primary">
+        <div class="revealer">
+          <a href="/" class="reveal-line" @click.prevent="navigateTo('/')">Index</a>
+        </div>
+        <div v-for="category in categories" :key="category" class="revealer">
+          <a
+            :href="`/?category=${category}`"
+            class="reveal-line"
+            @click.prevent="navigateTo(`/?category=${category}`)"
+          >
+            {{ formatCategoryLabel(category) }}
+          </a>
+        </div>
+        <div class="revealer">
+          <a href="/wishlist" class="reveal-line" @click.prevent="navigateTo('/wishlist')">
+            Wishlist ({{ wishlist.count }})
+          </a>
+        </div>
+        <div class="revealer">
+          <a href="/cart" class="reveal-line" @click.prevent="navigateTo('/cart')">Cart</a>
+        </div>
+        <div v-if="auth.isAuthenticated" class="revealer">
+          <a href="/" class="reveal-line" @click.prevent="onLogout">Logout</a>
+        </div>
+        <div v-else class="revealer">
+          <a href="/login" class="reveal-line" @click.prevent="navigateTo('/login')">Login</a>
+        </div>
+      </nav>
+
+      <div class="menu-footer">
+        <div class="menu-footer-col">
+          <div class="revealer">
+            <p class="reveal-line">&copy;2026 QubicaStore — All rights reserved</p>
+          </div>
+          <div v-if="auth.isAuthenticated" class="revealer">
+            <p class="reveal-line">Signed in as {{ auth.username }}</p>
+          </div>
+        </div>
+        <div class="menu-footer-col">
+          <div class="socials">
+            <div class="revealer">
+              <a class="reveal-line" href="https://fakestoreapi.com/docs" target="_blank" rel="noopener">
+                Fake Store API
+              </a>
+            </div>
+            <div class="revealer">
+              <a class="reveal-line" href="https://vuejs.org" target="_blank" rel="noopener">Vue</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="scss">
-@use '@/styles/mixins' as *;
+.menu {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100svh;
+  pointer-events: none;
+  z-index: 20;
+}
 
-.header {
-  position: sticky;
+.nav {
+  pointer-events: all;
+}
+
+.nav,
+.menu-overlay-nav {
+  position: fixed;
   top: 0;
-  z-index: 50;
-  background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
+  left: 0;
+  width: 100vw;
+  padding: var(--pad);
+  display: flex;
+  gap: var(--pad);
+}
 
-  &__inner {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    min-height: var(--header-height);
-    flex-wrap: wrap;
-    padding-block: var(--space-2);
+.nav-logo,
+.menu-overlay-nav-logo {
+  flex: 2;
+}
+
+.nav-items {
+  flex: 1;
+  display: flex;
+}
+
+.nav-toggle,
+.nav-cart,
+.menu-overlay-nav-close {
+  flex: 1;
+}
+
+.revealer .reveal-line {
+  transform: translateY(0);
+}
+
+.brand {
+  font-weight: 700;
+}
+
+.nav-toggle .revealer,
+.nav-cart .revealer,
+.menu-overlay-nav-logo .revealer,
+.menu-overlay-nav-close .revealer {
+  cursor: pointer;
+}
+
+p,
+a {
+  text-transform: uppercase;
+  font-size: var(--font-size-label);
+  font-weight: 600;
+  letter-spacing: var(--letter-label);
+  line-height: 1;
+}
+
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100svh;
+  overflow: hidden;
+  background-color: var(--color-inverse-bg);
+  clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+  will-change: transform, clip-path;
+  pointer-events: none;
+  z-index: 20;
+
+  a,
+  p {
+    color: var(--color-inverse-fg);
   }
+}
 
-  &__brand {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-weight: 700;
-    font-size: var(--font-size-lg);
-  }
+.menu-overlay-items {
+  padding: 25vh var(--pad) var(--pad);
 
-  &__logo {
-    display: grid;
-    place-items: center;
-    width: 2rem;
-    height: 2rem;
-    background-color: var(--color-primary);
-    color: var(--color-primary-contrast);
-    border-radius: var(--radius-md);
-  }
+  a {
+    font-size: 2.5rem;
 
-  &__nav {
-    flex: 1 1 100%;
-    order: 3;
-    overflow-x: auto;
-
-    @include respond('lg') {
-      flex: 1 1 auto;
-      order: 0;
+    @media (min-width: 768px) {
+      font-size: 3rem;
     }
   }
+}
 
-  &__nav-list {
-    display: flex;
-    gap: var(--space-2);
-    list-style: none;
-    padding-bottom: var(--space-1);
-  }
+.menu-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: var(--pad);
+  display: flex;
+  align-items: flex-end;
+  gap: var(--pad);
+}
 
-  &__nav-link {
-    display: inline-block;
-    white-space: nowrap;
-    padding: var(--space-2) var(--space-3);
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-    color: var(--color-text-muted);
-    border-radius: var(--radius-full);
-    transition:
-      background-color var(--transition-fast),
-      color var(--transition-fast);
+.menu-footer-col:nth-child(1) {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
 
-    &:hover {
-      background-color: var(--color-surface-alt);
-      color: var(--color-text);
-    }
+.menu-footer-col:nth-child(2) {
+  flex: 1;
+}
 
-    &.is-active {
-      background-color: var(--color-primary);
-      color: var(--color-primary-contrast);
-    }
-  }
-
-  &__actions {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  &__icon-btn {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: var(--font-size-lg);
-    border-radius: var(--radius-full);
-    transition: background-color var(--transition-fast);
-
-    &:hover {
-      background-color: var(--color-surface-alt);
-    }
-  }
-
-  &__badge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    min-width: 1.15rem;
-    height: 1.15rem;
-    padding: 0 0.25rem;
-    display: grid;
-    place-items: center;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--color-primary-contrast);
-    background-color: var(--color-primary);
-    border-radius: var(--radius-full);
-  }
-
-  &__user {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-
-    @media (max-width: 767px) {
-      display: none;
-    }
-  }
-
-  &__auth-btn {
-    padding: var(--space-2) var(--space-4);
-  }
+.socials {
+  display: flex;
+  gap: var(--pad);
 }
 </style>
