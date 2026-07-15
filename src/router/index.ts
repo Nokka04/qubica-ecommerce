@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -43,6 +44,18 @@ const router = createRouter({
   scrollBehavior(_to, _from, savedPosition) {
     return savedPosition ?? { top: 0 }
   },
+})
+
+// Guard protected routes: redirect unauthenticated users to login,
+// preserving the intended destination for a post-login redirect.
+router.beforeEach((to) => {
+  if (to.meta.requiresAuth) {
+    const auth = useAuthStore()
+    if (!auth.isAuthenticated) {
+      return { name: 'login', query: { redirect: to.fullPath } }
+    }
+  }
+  return true
 })
 
 export default router
