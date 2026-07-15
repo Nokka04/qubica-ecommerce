@@ -38,30 +38,34 @@ const emit = defineEmits<{
 .modal {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 1100;
   display: grid;
   place-items: center;
   padding: var(--space-4);
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
 
   &__dialog {
     width: 100%;
     max-width: 420px;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-fg);
+    border-radius: 0;
     padding: var(--space-6);
     text-align: center;
   }
 
   &__title {
+    text-transform: uppercase;
     font-size: var(--font-size-xl);
+    letter-spacing: -0.01em;
     margin-bottom: var(--space-3);
   }
 
   &__message {
-    color: var(--color-text-muted);
+    text-transform: uppercase;
+    font-size: var(--font-size-label);
+    letter-spacing: var(--letter-label);
+    color: var(--color-muted);
     margin-bottom: var(--space-6);
   }
 

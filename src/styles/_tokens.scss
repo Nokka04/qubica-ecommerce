@@ -1,41 +1,51 @@
 // =============================================================
 // Design System — Design Tokens (CSS Custom Properties)
-// Centralized colors, spacing, typography, radius & shadows.
-// Light theme is the default; dark theme overrides via [data-theme="dark"].
+// "Format Archive" inspired: strict black & white, PP Neue Montreal,
+// oversized display type and a single, monochrome palette.
 // =============================================================
 
 :root {
-  // ----- Brand palette -----
-  --color-primary: #4f46e5;
-  --color-primary-hover: #4338ca;
-  --color-primary-contrast: #ffffff;
-  --color-accent: #f59e0b;
+  // ----- Monochrome palette -----
+  --color-bg: #ffffff;
+  --color-fg: #000000;
+  --color-inverse-bg: #000000;
+  --color-inverse-fg: #ffffff;
+  --color-muted: #6b6b6b;
+  --color-line: rgba(0, 0, 0, 0.15);
+  --color-line-inverse: rgba(255, 255, 255, 0.15);
+  --color-loader-bg: #3a3a3a;
 
-  // ----- Semantic (light theme) -----
-  --color-bg: #f7f8fa;
+  // Semantic aliases (kept so existing components map onto the new palette)
   --color-surface: #ffffff;
-  --color-surface-alt: #f1f3f6;
-  --color-text: #1a1d24;
-  --color-text-muted: #5b6472;
-  --color-border: #e3e6eb;
-  --color-danger: #dc2626;
-  --color-success: #16a34a;
+  --color-surface-alt: #f2f2f2;
+  --color-text: #000000;
+  --color-text-muted: #6b6b6b;
+  --color-border: rgba(0, 0, 0, 0.15);
+  --color-primary: #000000;
+  --color-primary-hover: #1a1a1a;
+  --color-primary-contrast: #ffffff;
+  --color-danger: #000000;
 
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
-  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
-  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.14);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
 
   // ----- Typography -----
-  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'PP Neue Montreal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-size-label: 0.75rem; // uppercase micro labels
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.125rem;
   --font-size-xl: 1.5rem;
   --font-size-2xl: 2rem;
-  --line-height-base: 1.5;
+  --font-size-3xl: 3rem;
+  --font-size-display: 9rem;
+  --line-height-base: 1.35;
+  --letter-label: -0.008rem;
 
-  // ----- Spacing scale (4px base) -----
+  // ----- Spacing scale -----
+  --pad: 1em; // the base FA gutter used across the layout
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -44,37 +54,18 @@
   --space-6: 2rem;
   --space-8: 3rem;
 
-  // ----- Radius -----
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  // ----- Radius (FA uses hard edges) -----
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
   --radius-full: 999px;
 
   // ----- Layout -----
-  --container-max: 1200px;
-  --header-height: 64px;
+  --container-max: 100%;
+  --header-height: 3.5rem;
 
   // ----- Motion -----
-  --transition-fast: 120ms ease;
-  --transition-base: 220ms ease;
-}
-
-:root[data-theme='dark'] {
-  --color-primary: #818cf8;
-  --color-primary-hover: #a5b4fc;
-  --color-primary-contrast: #10121a;
-  --color-accent: #fbbf24;
-
-  --color-bg: #0f1117;
-  --color-surface: #171a22;
-  --color-surface-alt: #1f232d;
-  --color-text: #e8eaef;
-  --color-text-muted: #9aa3b2;
-  --color-border: #2a2f3a;
-  --color-danger: #f87171;
-  --color-success: #4ade80;
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+  --ease-hop: cubic-bezier(0.15, 1, 0.25, 1);
+  --transition-fast: 200ms var(--ease-hop);
+  --transition-base: 500ms var(--ease-hop);
 }
