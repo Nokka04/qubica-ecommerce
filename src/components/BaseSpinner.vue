@@ -15,13 +15,13 @@ withDefaults(defineProps<{ label?: string }>(), {
 .spinner {
   display: flex;
   justify-content: center;
-  padding: var(--space-6);
+  padding: 30vh var(--space-6);
 
   &__circle {
     width: 2.5rem;
     height: 2.5rem;
-    border: 3px solid var(--color-border);
-    border-top-color: var(--color-primary);
+    border: 2px solid var(--color-line);
+    border-top-color: var(--color-fg);
     border-radius: var(--radius-full);
     animation: spin 0.8s linear infinite;
   }

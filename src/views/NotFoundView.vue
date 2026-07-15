@@ -12,17 +12,27 @@ import { RouterLink } from 'vue-router'
 
 <style scoped lang="scss">
 .not-found {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--pad);
   text-align: center;
-  padding-block: var(--space-8);
+  background-color: var(--color-bg);
 
   &__code {
-    font-size: 4rem;
-    color: var(--color-primary);
+    font-size: clamp(6rem, 30vw, 20rem);
+    line-height: 0.8;
+    letter-spacing: -0.05em;
   }
 
   &__text {
-    color: var(--color-text-muted);
-    margin-block: var(--space-3) var(--space-6);
+    text-transform: uppercase;
+    font-size: var(--font-size-label);
+    letter-spacing: var(--letter-label);
+    color: var(--color-muted);
   }
 }
 </style>
