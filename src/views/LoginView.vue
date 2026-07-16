@@ -56,6 +56,11 @@ async function onSubmit(): Promise<void> {
         <button type="submit" class="btn btn--primary login__submit" :disabled="loading">
           {{ loading ? 'Signing in…' : 'Sign in' }}
         </button>
+
+        <p class="login__register">
+          No account?
+          <RouterLink to="/register" class="login__link">Create one</RouterLink>
+        </p>
       </form>
     </div>
   </section>
@@ -134,6 +139,19 @@ async function onSubmit(): Promise<void> {
 
   &__submit {
     margin-top: var(--space-2);
+  }
+
+  &__register {
+    text-transform: uppercase;
+    font-size: var(--font-size-label);
+    letter-spacing: var(--letter-label);
+    color: var(--color-muted);
+  }
+
+  &__link {
+    color: var(--color-fg);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 }
 </style>
