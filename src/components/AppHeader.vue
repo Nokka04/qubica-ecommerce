@@ -231,11 +231,21 @@ function onLogout(): void {
           <a href="/cart" class="reveal-line" @click.prevent="navigateTo('/cart')">Cart</a>
         </div>
         <div v-if="auth.isAuthenticated" class="revealer">
+          <a href="/account" class="reveal-line" @click.prevent="navigateTo('/account')">Account</a>
+        </div>
+        <div v-if="auth.isAuthenticated" class="revealer">
           <a href="/" class="reveal-line" @click.prevent="onLogout">Logout</a>
         </div>
-        <div v-else class="revealer">
-          <a href="/login" class="reveal-line" @click.prevent="navigateTo('/login')">Login</a>
-        </div>
+        <template v-else>
+          <div class="revealer">
+            <a href="/login" class="reveal-line" @click.prevent="navigateTo('/login')">Login</a>
+          </div>
+          <div class="revealer">
+            <a href="/register" class="reveal-line" @click.prevent="navigateTo('/register')">
+              Register
+            </a>
+          </div>
+        </template>
       </nav>
 
       <div class="menu-footer">
@@ -244,7 +254,7 @@ function onLogout(): void {
             <p class="reveal-line">&copy;2026 QubicaStore — All rights reserved</p>
           </div>
           <div v-if="auth.isAuthenticated" class="revealer">
-            <p class="reveal-line">Signed in as {{ auth.username }}</p>
+            <p class="reveal-line">Signed in as {{ auth.displayName }}</p>
           </div>
         </div>
         <div class="menu-footer-col">
