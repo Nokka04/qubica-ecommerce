@@ -23,8 +23,9 @@ This project was built as the technical exercise for the **Junior Web Engineer**
 - **Vue 3 + strict TypeScript** — API responses and domain models are fully typed (`src/types`).
 - **Design system with SCSS** — CSS Custom Properties for colors, spacing, typography and radii, centralized in `src/styles/_tokens.scss`.
 - **Unit tests** — Vitest tests for the price/label formatting utilities and the cart store logic.
-- **State management** — Pinia stores for cart, wishlist and auth.
+- **State management** — Pinia stores for cart, wishlist, auth and theme.
 - **Polish** — route transitions, skeleton loaders and spinners for loading states, and an error modal ("something went wrong") with retry for network failures.
+- **Light / dark theme** — a header toggle switches the monochrome palette; the choice is persisted to `localStorage` and falls back to the OS preference on first visit (applied before paint to avoid a flash).
 - **monochrome redesign** — monochrome design system (PP Neue Montreal), GSAP reveal animations, Lenis smooth scrolling, a site preloader and clip-path page transitions.
 - **Add to cart** — from the product detail page, with a live counter badge in the header.
 - **Wishlist** — protected feature with its own view and header counter.
@@ -98,7 +99,7 @@ src/
 ├── components/     # Reusable UI components (AppHeader, AppFooter, SitePreloader, ProductCard…)
 ├── composables/    # Reusable logic (useAsyncData, gsap setup, useSmoothScroll)
 ├── router/         # Route definitions + auth guard
-├── stores/         # Pinia stores (cart, wishlist, auth)
+├── stores/         # Pinia stores (cart, wishlist, auth, theme)
 ├── styles/         # SCSS design system (tokens, mixins, global styles)
 ├── types/          # Shared TypeScript interfaces
 ├── utils/          # Pure helpers (formatting) + unit tests

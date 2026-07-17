@@ -21,6 +21,9 @@ export interface Product {
 /** Categories are returned by the API as a plain list of strings. */
 export type Category = string
 
+/** UI colour scheme. */
+export type Theme = 'light' | 'dark'
+
 export interface CartItem {
   product: Product
   quantity: number
