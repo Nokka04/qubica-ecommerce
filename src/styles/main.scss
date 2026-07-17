@@ -46,6 +46,9 @@ body {
   color: var(--color-fg);
   background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base);
 }
 
 // ----- Lenis smooth scroll hooks -----

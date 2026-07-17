@@ -1,6 +1,6 @@
 # QubicaStore — Vue 3 + TypeScript E-commerce
 
-A responsive e-commerce single-page application built with **Vue 3**, **TypeScript** and **Vite**, consuming the [Fake Store API](https://fakestoreapi.com/docs). It lets users browse products, filter by category, view product details, manage a shopping cart and wishlist, and authenticate against the backend API.
+A responsive e-commerce single-page application built with **Vue 3**, **TypeScript** and **Vite**, consuming the [Fake Store API](https://fakestoreapi.com/docs). It lets users browse products, filter by category, view product details, manage a shopping cart and wishlist, authenticate against the backend API, and view their account profile. The UI follows a strict black & white, motion-led monochrome design language.
 
 This project was built as the technical exercise for the **Junior Web Engineer** role at QubicaAmf.
 
@@ -25,10 +25,12 @@ This project was built as the technical exercise for the **Junior Web Engineer**
 - **Unit tests** — Vitest tests for the price/label formatting utilities and the cart store logic.
 - **State management** — Pinia stores for cart, wishlist, auth and theme.
 - **Polish** — route transitions, skeleton loaders and spinners for loading states, and an error modal ("something went wrong") with retry for network failures.
-- **Light / dark theme** — toggle in the header, persisted to `localStorage` and respecting the OS preference on first visit.
+- **Light / dark theme** — a header toggle switches the monochrome palette; the choice is persisted to `localStorage` and falls back to the OS preference on first visit (applied before paint to avoid a flash).
+- **monochrome redesign** — monochrome design system (PP Neue Montreal), GSAP reveal animations, Lenis smooth scrolling, a site preloader and clip-path page transitions.
 - **Add to cart** — from the product detail page, with a live counter badge in the header.
 - **Wishlist** — protected feature with its own view and header counter.
-- **Login / logout** — via the Fake Store API `POST /auth/login`, with `requiresAuth` route guards protecting the Cart and Wishlist views.
+- **Login / logout** — via the Fake Store API `POST /auth/login`, with `requiresAuth` route guards protecting the Cart, Wishlist and Account views.
+- **User & account system** — the full profile is resolved from `/users` after login and shown on a protected Account page (name, email, phone, address). A registration page posts to `/users` (demo-only, as the API does not persist new accounts).
 
 ---
 
@@ -43,6 +45,7 @@ This project was built as the technical exercise for the **Junior Web Engineer**
 | State management  | Pinia                           |
 | Styling           | SCSS + CSS Custom Properties    |
 | HTTP client       | Axios                           |
+| Animation         | GSAP + Lenis + SplitType        |
 | Testing           | Vitest + @vue/test-utils        |
 | Linting           | ESLint + oxlint                 |
 
@@ -92,15 +95,15 @@ The login form is pre-filled with a valid Fake Store API account:
 
 ```
 src/
-├── api/            # Axios instance & typed API services (products, categories, auth)
-├── components/     # Reusable UI components (AppHeader, ProductCard, ErrorModal…)
-├── composables/    # Reusable logic (useAsyncData for loading/error handling)
+├── api/            # Axios instance & typed API services (products, categories, auth, users)
+├── components/     # Reusable UI components (AppHeader, AppFooter, SitePreloader, ProductCard…)
+├── composables/    # Reusable logic (useAsyncData, gsap setup, useSmoothScroll)
 ├── router/         # Route definitions + auth guard
 ├── stores/         # Pinia stores (cart, wishlist, auth, theme)
 ├── styles/         # SCSS design system (tokens, mixins, global styles)
 ├── types/          # Shared TypeScript interfaces
 ├── utils/          # Pure helpers (formatting) + unit tests
-└── views/          # Route-level views (Home, Product, Login, Cart, Wishlist…)
+└── views/          # Route-level views (Home, Product, Login, Register, Account, Cart, Wishlist…)
 ```
 
 ---
@@ -114,5 +117,8 @@ non-fast-forward merge, simulating a Pull Request based workflow:
 - `feat/catalog` — home grid, category filtering & product detail
 - `feat/cart-auth` — cart, wishlist & authentication
 - `feat/tests-docs` — unit tests & documentation
+- `feat/monochrome-redesign` — black & white redesign, animations & smooth scroll
+- `feat/user-account-system` — user profile, account page & registration
+- `chore/ui-polish` — metadata, docs & detail refinements
 
 Run `git log --oneline --graph` to see the branching history.

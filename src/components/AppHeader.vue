@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { fetchCategories } from '@/api/categories'
 import { formatCategoryLabel } from '@/utils/format'
@@ -7,6 +7,7 @@ import type { Category } from '@/types'
 import { useCartStore } from '@/stores/cart'
 import { useWishlistStore } from '@/stores/wishlist'
 import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme'
 import { gsap } from '@/composables/gsap'
 
 const categories = ref<Category[]>([])
@@ -14,6 +15,7 @@ const categories = ref<Category[]>([])
 const cart = useCartStore()
 const wishlist = useWishlistStore()
 const auth = useAuthStore()
+const theme = useThemeStore()
 const router = useRouter()
 
 const navRef = ref<HTMLElement | null>(null)
@@ -23,7 +25,9 @@ const menuBtnRef = ref<HTMLElement | null>(null)
 const cartBtnRef = ref<HTMLElement | null>(null)
 const overlayLogoRef = ref<HTMLElement | null>(null)
 const closeBtnRef = ref<HTMLElement | null>(null)
+const themeBtnRef = ref<HTMLElement | null>(null)
 
+const isOpen = ref(false)
 let isAnimating = false
 
 onMounted(async () => {
@@ -35,7 +39,10 @@ onMounted(async () => {
     })
     gsap.set([overlayLogoRef.value, closeBtnRef.value], { y: '100%' })
     gsap.set(overlay.querySelectorAll('.menu-overlay-items .reveal-line'), { y: '100%' })
-    gsap.set(overlay.querySelectorAll('.menu-footer .reveal-line'), { y: '100%' })
+    gsap.set(
+      overlay.querySelectorAll('.menu-footer .reveal-line, .menu-overlay-account .reveal-line'),
+      { y: '100%' },
+    )
   }
 
   try {
@@ -45,21 +52,37 @@ onMounted(async () => {
   }
 })
 
+// Close the overlay with the Escape key for keyboard users.
+function onKeydown(e: KeyboardEvent): void {
+  if (e.key === 'Escape' && isOpen.value) closeMenu()
+}
+
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onUnmounted(() => window.removeEventListener('keydown', onKeydown))
+
 function openMenu(): void {
   const overlay = menuOverlayRef.value
   if (isAnimating || !overlay) return
   isAnimating = true
+  isOpen.value = true
 
-  const tl = gsap.timeline({ onComplete: () => (isAnimating = false) })
+  const tl = gsap.timeline({
+    onComplete: () => {
+      isAnimating = false
+      closeBtnRef.value?.focus()
+    },
+  })
 
-  tl.to([navLogoRef.value, menuBtnRef.value, cartBtnRef.value], {
+  tl.to([navLogoRef.value, menuBtnRef.value, cartBtnRef.value, themeBtnRef.value], {
     y: '-100%',
     duration: 0.5,
     stagger: 0.1,
     ease: 'power3.out',
     onComplete: () => {
       if (navRef.value) navRef.value.style.pointerEvents = 'none'
-      gsap.set([navLogoRef.value, menuBtnRef.value, cartBtnRef.value], { y: '100%' })
+      gsap.set([navLogoRef.value, menuBtnRef.value, cartBtnRef.value, themeBtnRef.value], {
+        y: '100%',
+      })
     },
   })
 
@@ -87,7 +110,7 @@ function openMenu(): void {
   )
 
   tl.to(
-    overlay.querySelectorAll('.menu-footer .reveal-line'),
+    overlay.querySelectorAll('.menu-footer .reveal-line, .menu-overlay-account .reveal-line'),
     { y: '0%', duration: 1, stagger: 0.1, ease: 'power3.out' },
     '<',
   )
@@ -97,8 +120,14 @@ function closeMenu(): void {
   const overlay = menuOverlayRef.value
   if (isAnimating || !overlay) return
   isAnimating = true
+  isOpen.value = false
 
-  const tl = gsap.timeline({ onComplete: () => (isAnimating = false) })
+  const tl = gsap.timeline({
+    onComplete: () => {
+      isAnimating = false
+      menuBtnRef.value?.focus()
+    },
+  })
 
   tl.to([overlayLogoRef.value, closeBtnRef.value], {
     y: '-100%',
@@ -114,7 +143,7 @@ function closeMenu(): void {
   )
 
   tl.to(
-    overlay.querySelectorAll('.menu-footer .reveal-line'),
+    overlay.querySelectorAll('.menu-footer .reveal-line, .menu-overlay-account .reveal-line'),
     { y: '-100%', duration: 0.5, stagger: 0.05, ease: 'power3.in' },
     '<',
   )
@@ -132,14 +161,17 @@ function closeMenu(): void {
         })
         gsap.set([overlayLogoRef.value, closeBtnRef.value], { y: '100%' })
         gsap.set(overlay.querySelectorAll('.menu-overlay-items .reveal-line'), { y: '100%' })
-        gsap.set(overlay.querySelectorAll('.menu-footer .reveal-line'), { y: '100%' })
+        gsap.set(
+          overlay.querySelectorAll('.menu-footer .reveal-line, .menu-overlay-account .reveal-line'),
+          { y: '100%' },
+        )
       },
     },
     '+=0.25',
   )
 
   tl.to(
-    [navLogoRef.value, menuBtnRef.value, cartBtnRef.value],
+    [navLogoRef.value, menuBtnRef.value, cartBtnRef.value, themeBtnRef.value],
     {
       y: '0%',
       duration: 0.5,
@@ -171,7 +203,7 @@ function onLogout(): void {
 
 <template>
   <div class="menu">
-    <div ref="navRef" class="nav">
+    <div ref="navRef" class="nav" :inert="isOpen">
       <div class="nav-logo">
         <div class="revealer">
           <a ref="navLogoRef" href="/" class="reveal-line brand" @click.prevent="router.push('/')">
@@ -180,9 +212,17 @@ function onLogout(): void {
         </div>
       </div>
       <div class="nav-items">
-        <div class="nav-toggle" @click="openMenu">
+        <div class="nav-toggle">
           <div class="revealer">
-            <p ref="menuBtnRef" class="reveal-line">Menu</p>
+            <button
+              ref="menuBtnRef"
+              type="button"
+              class="reveal-line"
+              aria-label="Open menu"
+              @click="openMenu"
+            >
+              Menu
+            </button>
           </div>
         </div>
         <RouterLink to="/cart" class="nav-cart">
@@ -190,10 +230,24 @@ function onLogout(): void {
             <p ref="cartBtnRef" class="reveal-line">Cart ({{ cart.count }})</p>
           </div>
         </RouterLink>
+        <div class="nav-theme">
+          <div class="revealer">
+            <button
+              ref="themeBtnRef"
+              type="button"
+              class="reveal-line"
+              :aria-label="theme.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+              :aria-pressed="theme.theme === 'dark'"
+              @click="theme.toggle()"
+            >
+              {{ theme.theme === 'dark' ? 'Light' : 'Dark' }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div ref="menuOverlayRef" class="menu-overlay">
+    <div ref="menuOverlayRef" class="menu-overlay" :inert="!isOpen" :aria-hidden="!isOpen ? 'true' : 'false'">
       <div class="menu-overlay-nav">
         <div class="menu-overlay-nav-logo">
           <div class="revealer">
@@ -202,9 +256,23 @@ function onLogout(): void {
             </a>
           </div>
         </div>
-        <div class="menu-overlay-nav-close" @click="closeMenu">
-          <div class="revealer">
-            <p ref="closeBtnRef" class="reveal-line">Close</p>
+        <div class="nav-items">
+          <div class="nav-toggle menu-overlay-nav-close">
+            <div class="revealer">
+              <button ref="closeBtnRef" type="button" class="reveal-line" aria-label="Close menu" @click="closeMenu">
+                Close
+              </button>
+            </div>
+          </div>
+          <div class="nav-cart nav-spacer" aria-hidden="true">
+            <div class="revealer">
+              <span class="reveal-line">Cart ({{ cart.count }})</span>
+            </div>
+          </div>
+          <div class="nav-theme nav-spacer" aria-hidden="true">
+            <div class="revealer">
+              <span class="reveal-line">{{ theme.theme === 'dark' ? 'Light' : 'Dark' }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -230,23 +298,26 @@ function onLogout(): void {
         <div class="revealer">
           <a href="/cart" class="reveal-line" @click.prevent="navigateTo('/cart')">Cart</a>
         </div>
-        <div v-if="auth.isAuthenticated" class="revealer">
-          <a href="/account" class="reveal-line" @click.prevent="navigateTo('/account')">Account</a>
-        </div>
-        <div v-if="auth.isAuthenticated" class="revealer">
-          <a href="/" class="reveal-line" @click.prevent="onLogout">Logout</a>
-        </div>
+      </nav>
+
+      <div class="menu-overlay-account">
+        <template v-if="auth.isAuthenticated">
+          <div class="revealer">
+            <a href="/account" class="reveal-line" @click.prevent="navigateTo('/account')">Account</a>
+          </div>
+          <div class="revealer">
+            <a href="/" class="reveal-line" @click.prevent="onLogout">Logout</a>
+          </div>
+        </template>
         <template v-else>
           <div class="revealer">
             <a href="/login" class="reveal-line" @click.prevent="navigateTo('/login')">Login</a>
           </div>
           <div class="revealer">
-            <a href="/register" class="reveal-line" @click.prevent="navigateTo('/register')">
-              Register
-            </a>
+            <a href="/register" class="reveal-line" @click.prevent="navigateTo('/register')">Register</a>
           </div>
         </template>
-      </nav>
+      </div>
 
       <div class="menu-footer">
         <div class="menu-footer-col">
@@ -307,12 +378,28 @@ function onLogout(): void {
 .nav-items {
   flex: 1;
   display: flex;
+  gap: var(--space-4);
+}
+
+.nav-theme {
+  flex: 0 0 auto;
 }
 
 .nav-toggle,
 .nav-cart,
 .menu-overlay-nav-close {
   flex: 1;
+}
+
+.nav-theme button {
+  text-align: left;
+}
+
+// Invisible mirror items in the overlay nav: they only reserve space so the
+// "Close" button lines up exactly under "Menu".
+.nav-spacer {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .revealer .reveal-line {
@@ -331,7 +418,8 @@ function onLogout(): void {
 }
 
 p,
-a {
+a,
+button {
   text-transform: uppercase;
   font-size: var(--font-size-label);
   font-weight: 600;
@@ -352,7 +440,8 @@ a {
   z-index: 20;
 
   a,
-  p {
+  p,
+  button {
     color: var(--color-inverse-fg);
   }
 }
@@ -366,6 +455,20 @@ a {
     @media (min-width: 768px) {
       font-size: 3rem;
     }
+  }
+}
+
+// Small auth links (Account/Logout or Login/Register) sitting side by side
+// on the right of the overlay, aligned with the top of the items list.
+.menu-overlay-account {
+  position: absolute;
+  top: 25vh;
+  right: var(--pad);
+  display: flex;
+  gap: var(--space-5);
+
+  a {
+    font-size: var(--font-size-label);
   }
 }
 

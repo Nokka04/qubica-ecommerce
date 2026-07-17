@@ -69,3 +69,24 @@
   --transition-fast: 200ms var(--ease-hop);
   --transition-base: 500ms var(--ease-hop);
 }
+
+// ----- Dark theme: the monochrome palette, inverted -----
+[data-theme='dark'] {
+  --color-bg: #000000;
+  --color-fg: #ffffff;
+  --color-inverse-bg: #ffffff;
+  --color-inverse-fg: #000000;
+  --color-muted: #9a9a9a;
+  --color-line: rgba(255, 255, 255, 0.18);
+  --color-line-inverse: rgba(0, 0, 0, 0.15);
+  --color-loader-bg: #c8c8c8;
+
+  --color-surface: #000000;
+  --color-surface-alt: #141414;
+  --color-text: #ffffff;
+  --color-text-muted: #9a9a9a;
+  --color-border: rgba(255, 255, 255, 0.18);
+  --color-primary: #ffffff;
+  --color-primary-hover: #e6e6e6;
+  --color-primary-contrast: #000000;
+}
